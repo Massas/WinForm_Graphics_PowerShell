@@ -117,10 +117,55 @@ function Get-Graphics{
 	# Create Pen object
 	$pen = New-Object System.Drawing.Pen("Red")
 
-	# 位置(0, 0)に100x80の四角を赤色で描く
-	$graphic.DrawRectangle($pen, 0, 0, 100, 80)
-	# 先に描いた四角に内接する楕円を黒で描く
-	$graphic.DrawEllipse($pen, 0, 0, 100, 80)
+
+	$mode = Read-Host "circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."
+	if(($mode -eq 'c') -or ($mode -eq 'C')){
+		Write-Host "Circle mode"
+		# 位置(0, 0)に100x80の四角を赤色で描く
+		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
+		# 先に描いた四角に内接する楕円を黒で描く
+		$graphic.DrawEllipse($pen, 0, 0, 100, 80)
+
+	}elseif(($mode -eq 'a') -or ($mode -eq 'A')) {
+		Write-Host "Arc mode"
+		# 位置(10, 20)に100x80の四角を赤色で描く
+		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
+		#先に描いた四角に内接する楕円の一部
+		# (開始角度 0度、スイープ角度 90度)を黒で描く
+		$graphic.DrawArc($pen, 0, 0, 100, 80, 0, 90)
+
+	}elseif(($mode -eq 'w') -or ($mode -eq 'W')) {
+		Write-Host "Pie mode"
+		# 位置(10, 20)に100x80の四角を赤色で描く
+		$graphic.DrawRectangle($pen, 10, 20, 100, 80)
+		# 先に描いた四角に内接する楕円の一部の扇形
+		# (開始角度 0度、スイープ角度 90度)を黒で描く
+		$graphic.DrawPie($pen, 10, 20, 100, 80, 0, 90)
+
+	}elseif(($mode -eq 'f') -or ($mode -eq 'F')) {
+		Write-Host "Polygon mode"
+		# 直線で接続する点の配列を作成
+		$ps = @()
+		$p1 = New-Object System.Drawing.Point(0, 0)
+		$ps += $p1
+		$p2 = New-Object System.Drawing.Point(150, 50)
+		$ps += $p2
+		$p3 = New-Object System.Drawing.Point(80, 100)
+		$ps += $p3
+		$p4 = New-Object System.Drawing.Point(100, 150)
+		$ps += $p4
+
+		# 多角形を描画する
+		$graphic.DrawPolygon($pen, $ps);
+
+	}elseif(($mode -eq 'r') -or ($mode -eq 'R')) {
+		Write-Host "Rectangle mode"
+		# 位置(10, 20)に100x80の長方形を描く
+		$graphic.DrawRectangle($pen, 10, 20, 100, 80);
+
+	}else {
+		Write-Host "None"
+	}
 	
 	#リソースを解放する
 	$graphic.Dispose()

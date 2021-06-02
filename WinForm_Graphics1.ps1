@@ -1,18 +1,3 @@
-
-# ランダムにsystem.drawing.colorの一色を返す処理
-function Get-RandomColor{
-	# 色名情報の配列を生成
-	$arr = [system.drawing.color]|get-member -static -MemberType Property | Select-Object Name
-	$count = $arr.Count
-
-	# 色名情報の配列の要素番号をランダムに生成
-	$select = Get-Random -Maximum ($count - 1)
-	$retcolor = $arr[$select]
-
-	return $retcolor.Name
-
-}
-
 # フォントを選択する処理
 function Get-SelectFont{
 	$arr_font = [System.Drawing.FontFamily]::Families
@@ -106,6 +91,38 @@ function Get-RandomFont{
 	return $ret_str
 }
 
+function Get-RandomPoint($maxvalue){
+	Write-Host "[Get-RandomPoint] START"
+	$ret = Get-Random -Maximum $maxvalue -Minimum 0
+	Write-Host "ret: $ret"
+	Write-Host "[Get-RandomPoint] END"
+	return $ret
+}
+
+# Return one color of system.drawing.color at random
+function Get-RandomColor{
+#	Write-Host "[Get-RandomColor] START"
+	$arr_color = @()
+
+	# Obtain color name information and put it into an array.
+	$arr_all = [system.drawing.color]|get-member -static -MemberType Property | Select-Object Name
+
+	foreach($color in $arr_all){
+		if($color.Name -eq "Empty"){
+				continue
+		}
+#		Write-Host $font.Name
+		$arr_color += $color
+	}
+	$count = $arr_color.Count
+	$select = Get-Random -Maximum ($count - 1)
+	$retcolor = $arr_color[$select]
+
+	Write-Host "color: " $retcolor.Name
+#	Write-Host "[Get-RandomColor] END"
+	return $retcolor.Name
+}
+
 # Create a graphic main routine
 function Get-Graphics{
 	Write-Host "[Get-Graphics] START"
@@ -115,16 +132,27 @@ function Get-Graphics{
 	# ImageオブジェクトのGraphicsオブジェクトを作成する
 	$graphic = [System.Drawing.Graphics]::FromImage($canvas)
 	# Create Pen object
-	$pen = New-Object System.Drawing.Pen("Red")
+#	$pen = New-Object System.Drawing.Pen("Red")
+	$pen_color = Get-RandomColor
+	$pen = New-Object System.Drawing.Pen($pen_color)
 
+	# Image object's width
+	$img_width = $canvas.Width
+	# Image object's width
+	$img_height = $canvas.Height
 
 	$mode = Read-Host "circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."
 	if(($mode -eq 'c') -or ($mode -eq 'C')){
 		Write-Host "Circle mode"
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+		$rect_width = Get-RandomPoint($img_width)
+		$rect_height = Get-RandomPoint($img_height)
 		# 位置(0, 0)に100x80の四角を赤色で描く
-		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
+#		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
+		$graphic.DrawRectangle($pen, $x_position, $y_position, $rect_width, $rect_height)
 		# 先に描いた四角に内接する楕円を黒で描く
-		$graphic.DrawEllipse($pen, 0, 0, 100, 80)
+		$graphic.DrawEllipse($pen, $x_position, $y_position, $rect_width, $rect_height)
 
 	}elseif(($mode -eq 'a') -or ($mode -eq 'A')) {
 		Write-Host "Arc mode"

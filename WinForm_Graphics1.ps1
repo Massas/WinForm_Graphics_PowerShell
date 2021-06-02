@@ -45,11 +45,11 @@ function Get-SelectFont{
 	$Combo.font = $Font
 
 	$str_BackColor = Get-RandomColor
-	Write-Host "Combo.BackColor: $str_BackColor"
+#	Write-Host "Combo.BackColor: $str_BackColor"
 	$Combo.BackColor = $str_BackColor
 
 	$str_ForeColor = Get-RandomColor
-	Write-Host "Combo.ForeColor: $str_ForeColor"
+#	Write-Host "Combo.ForeColor: $str_ForeColor"
 	$Combo.ForeColor = $str_ForeColor
 
 	# コンボボックスに項目を追加
@@ -118,9 +118,17 @@ function Get-RandomColor{
 	$select = Get-Random -Maximum ($count - 1)
 	$retcolor = $arr_color[$select]
 
-	Write-Host "color: " $retcolor.Name
+#	Write-Host "color: " $retcolor.Name
 #	Write-Host "[Get-RandomColor] END"
 	return $retcolor.Name
+}
+
+function Get-RandomAngle{
+	Write-Host "[Get-RandomAngle] START"
+	$select = Get-Random -Maximum 359 -Minimum 0
+	Write-Host "select: $select"
+	Write-Host "[Get-RandomAngle] END"
+	return $select
 }
 
 # Create a graphic main routine
@@ -134,6 +142,7 @@ function Get-Graphics{
 	# Create Pen object
 #	$pen = New-Object System.Drawing.Pen("Red")
 	$pen_color = Get-RandomColor
+	Write-Host "[[pen_color]]: $pen_color"
 	$pen = New-Object System.Drawing.Pen($pen_color)
 
 	# Image object's width
@@ -146,8 +155,13 @@ function Get-Graphics{
 		Write-Host "Circle mode"
 		$x_position = Get-RandomPoint($img_width)
 		$y_position = Get-RandomPoint($img_height)
-		$rect_width = Get-RandomPoint($img_width)
-		$rect_height = Get-RandomPoint($img_height)
+
+		$available_width = $img_width - $x_position
+		$rect_width = Get-RandomPoint($available_width)
+
+		$available_height = $img_height - $y_position
+		$rect_height = Get-RandomPoint($available_height)
+
 		# 位置(0, 0)に100x80の四角を赤色で描く
 #		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
 		$graphic.DrawRectangle($pen, $x_position, $y_position, $rect_width, $rect_height)
@@ -156,19 +170,44 @@ function Get-Graphics{
 
 	}elseif(($mode -eq 'a') -or ($mode -eq 'A')) {
 		Write-Host "Arc mode"
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+
+		$available_width = $img_width - $x_position
+		$arc_width = Get-RandomPoint($available_width)
+
+		$available_height = $img_height - $y_position
+		$arc_height = Get-RandomPoint($available_height)
+
+		$start_angle = Get-RandomAngle
+		$sweep_angle = Get-RandomAngle
+
 		# 位置(10, 20)に100x80の四角を赤色で描く
-		$graphic.DrawRectangle($pen, 0, 0, 100, 80)
+		$graphic.DrawRectangle($pen, $x_position, $y_position, $arc_width, $arc_height)
 		#先に描いた四角に内接する楕円の一部
 		# (開始角度 0度、スイープ角度 90度)を黒で描く
-		$graphic.DrawArc($pen, 0, 0, 100, 80, 0, 90)
+		$graphic.DrawArc($pen, $x_position, $y_position, $arc_width, $arc_height, $start_angle, $sweep_angle)
 
 	}elseif(($mode -eq 'w') -or ($mode -eq 'W')) {
 		Write-Host "Pie mode"
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+
+		$available_width = $img_width - $x_position
+		$pie_width = Get-RandomPoint($available_width)
+
+		$available_height = $img_height - $y_position
+		$pie_height = Get-RandomPoint($available_height)
+
+		$start_angle = Get-RandomAngle
+		$sweep_angle = Get-RandomAngle
+
 		# 位置(10, 20)に100x80の四角を赤色で描く
-		$graphic.DrawRectangle($pen, 10, 20, 100, 80)
+		$graphic.DrawRectangle($pen, $x_position, $y_position, $pie_width, $pie_height)
 		# 先に描いた四角に内接する楕円の一部の扇形
 		# (開始角度 0度、スイープ角度 90度)を黒で描く
-		$graphic.DrawPie($pen, 10, 20, 100, 80, 0, 90)
+		$graphic.DrawPie($pen, $x_position, $y_position, $pie_width, $pie_height, $start_angle, $sweep_angle)
 
 	}elseif(($mode -eq 'f') -or ($mode -eq 'F')) {
 		Write-Host "Polygon mode"
@@ -211,11 +250,11 @@ function Show_Message($text){
 	# フォームの作成
 	$form = New-Object System.Windows.Forms.Form
 	$form.Text = "入力内容の表示"
-	$form.Size = New-Object System.Drawing.Size(600,500)
+	$form.Size = New-Object System.Drawing.Size(500,500)
 	$form.StartPosition = "CenterScreen"
 
 	$str_BackColor = Get-RandomColor
-	Write-Host "[Show_Message]str_BackColor: $str_BackColor"
+	Write-Host "[[form BackColor]]: $str_BackColor"
 	$form.BackColor = $str_BackColor
 	
 	$form.MaximizeBox = $false
@@ -232,11 +271,11 @@ function Show_Message($text){
 	$OKButton.Flatstyle = "Popup"
 
 	$str_OKBackColor = Get-RandomColor
-	Write-Host "str_OKBackColor: $str_OKBackColor"
+#	Write-Host "str_OKBackColor: $str_OKBackColor"
 	$OKButton.Backcolor = $str_OKBackColor
 
 	$str_OKForeColor = Get-RandomColor
-	Write-Host "str_OKForeColor: $str_OKForeColor"
+#	Write-Host "str_OKForeColor: $str_OKForeColor"
 	$OKButton.forecolor = $str_OKForeColor
 
 	# モードの選択(ランダムor選択)
@@ -260,7 +299,7 @@ function Show_Message($text){
 	$label.Text = $text
 
 	$str_labelforeColor = Get-RandomColor
-	Write-Host "[Show_Message]str_labelForeColor: $str_labelforeColor"
+#	Write-Host "[Show_Message]str_labelForeColor: $str_labelforeColor"
 	$label.forecolor = $str_labelforeColor
 
 	$label.font = $Font
@@ -307,7 +346,7 @@ function Show_WinForm() {
 	$form.StartPosition = "CenterScreen"
 	
 	$str_formBackColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_formBackColor: $str_formBackColor"
+#	Write-Host "[Show_WinForm]str_formBackColor: $str_formBackColor"
 	$form.BackColor = $str_formBackColor
 
 	$form.MaximizeBox = $false
@@ -324,11 +363,11 @@ function Show_WinForm() {
 	$OKButton.Flatstyle = "Popup"
 
 	$str_OKBackColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_OKBackColor: $str_OKBackColor"
+#	Write-Host "[Show_WinForm]str_OKBackColor: $str_OKBackColor"
 	$OKButton.Backcolor = $str_OKBackColor
 	
 	$str_OKforeColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_OKforeColor: $str_OKforeColor"
+#	Write-Host "[Show_WinForm]str_OKforeColor: $str_OKforeColor"
 	$OKButton.forecolor = $str_OKforeColor
 
 	# キャンセルボタンの設定
@@ -340,11 +379,11 @@ function Show_WinForm() {
 	$CancelButton.Flatstyle = "Popup"
 
 	$str_cancelBackColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_cancelBackColor: $str_cancelBackColor"
+#	Write-Host "[Show_WinForm]str_cancelBackColor: $str_cancelBackColor"
 	$CancelButton.backcolor = $str_cancelBackColor
 
 	$str_cancelForeColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_cancelForeColor: $str_cancelForeColor"
+#	Write-Host "[Show_WinForm]str_cancelForeColor: $str_cancelForeColor"
 	$CancelButton.forecolor = $str_cancelForeColor
 
 	# フォントの設定
@@ -357,7 +396,7 @@ function Show_WinForm() {
 	$label.Text = "何か入力してください"
 
 	$str_labelBackColor = Get-RandomColor
-	Write-Host "[Show_WinForm]str_labelBackColor: $str_labelBackColor"
+#	Write-Host "[Show_WinForm]str_labelBackColor: $str_labelBackColor"
 	$label.forecolor = $str_labelBackColor
 
 	$label.font = $Font
@@ -388,7 +427,7 @@ function Show_WinForm() {
 	$result = $form.ShowDialog()
 
 	# 結果による処理分岐
-	if (($result -eq "OK") -and ($textBox.Text.Length -gt 0)){
+	if (($result -eq "OK") -and ($textBox.Text.Length -ge 0)){
 		$x = $textBox.Text
 		Write-Host "$x"
 		Show_Message($x)

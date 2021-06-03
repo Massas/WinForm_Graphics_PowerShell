@@ -203,7 +203,6 @@ function Get-Graphics{
 		$start_angle = Get-RandomAngle
 		$sweep_angle = Get-RandomAngle
 
-		# 位置(10, 20)に100x80の四角を赤色で描く
 		$graphic.DrawRectangle($pen, $x_position, $y_position, $pie_width, $pie_height)
 		# 先に描いた四角に内接する楕円の一部の扇形
 		# (開始角度 0度、スイープ角度 90度)を黒で描く
@@ -213,13 +212,25 @@ function Get-Graphics{
 		Write-Host "Polygon mode"
 		# 直線で接続する点の配列を作成
 		$ps = @()
-		$p1 = New-Object System.Drawing.Point(0, 0)
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+		$p1 = New-Object System.Drawing.Point($x_position, $y_position)
 		$ps += $p1
-		$p2 = New-Object System.Drawing.Point(150, 50)
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+		$p2 = New-Object System.Drawing.Point($x_position, $y_position)
 		$ps += $p2
-		$p3 = New-Object System.Drawing.Point(80, 100)
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+		$p3 = New-Object System.Drawing.Point($x_position, $y_position)
 		$ps += $p3
-		$p4 = New-Object System.Drawing.Point(100, 150)
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+		$p4 = New-Object System.Drawing.Point($x_position, $y_position)
 		$ps += $p4
 
 		# 多角形を描画する
@@ -227,8 +238,17 @@ function Get-Graphics{
 
 	}elseif(($mode -eq 'r') -or ($mode -eq 'R')) {
 		Write-Host "Rectangle mode"
-		# 位置(10, 20)に100x80の長方形を描く
-		$graphic.DrawRectangle($pen, 10, 20, 100, 80);
+
+		$x_position = Get-RandomPoint($img_width)
+		$y_position = Get-RandomPoint($img_height)
+
+		$available_width = $img_width - $x_position
+		$rect_width = Get-RandomPoint($available_width)
+
+		$available_height = $img_height - $y_position
+		$rect_height = Get-RandomPoint($available_height)
+
+		$graphic.DrawRectangle($pen, $x_position, $y_position, $rect_width, $rect_height);
 
 	}else {
 		Write-Host "None"

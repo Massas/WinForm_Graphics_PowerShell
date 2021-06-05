@@ -337,6 +337,33 @@ function Get-Graphics{
 	return $canvas
 }
 
+function Convert-LabelToImage($label){
+	Write-Host "[Convert-LabelToImage] START"
+
+	$size = $label.Size
+	$height = $size.Height
+	$width = $size.Width
+
+	$DstBmp = New-Object System.Drawing.Bitmap($width, $height)
+	$Rect = New-Object System.Drawing.Rectangle(0, 0, $width, $height)
+	# Convert a label to a Bitmap
+	$label.DrawToBitmap($DstBmp, $Rect)
+
+	$savename = Read-Host "please enter filename to save as PNG" 	
+	try{
+		# Save the file
+		$DstBmp.Save($sourceImgDir + "$savename", [System.Drawing.Imaging.ImageFormat]::Png)	
+	}catch{
+		Write-Host "Save failed."
+		throw ArgumentNullException
+	}
+#	"savename: $savename" | Add-Content $logfilename -Encoding UTF8
+
+	Write-Host "[Convert-LabelToImage] END"
+	return
+}
+	
+
 
 # 入力された内容を表示する
 function Show_Message($text){
@@ -424,6 +451,12 @@ function Show_Message($text){
 		$x = $label.Text
 		Write-Host "$x"
 		Write-Host "Show_Message: end"
+
+		$wanttosave = Read-Host "Do you want to save? If yes, enter y."
+		if(($wanttosave -eq 'y') -or ($wanttosave -eq 'Y')){
+			# convert and save
+			Convert-LabelToImage($label)
+		}
 
 		return 0
 	}
@@ -540,6 +573,8 @@ function Show_WinForm() {
 # アセンブリの読み込み
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+$sourceImgDir = 'C:\work\PowerShell\WinForm_Font\source_img\'
 
 while ($true) {
     $select = Read-Host "please enter and start. if you want to quit, please 'q' and enter"

@@ -145,6 +145,21 @@ function Get-RandomBrushes{
 	return [System.Drawing.Brushes]::$ret_str
 }
 
+function Get-RandomDrawingPattern($loopcount){
+#	Write-Host "[Get-RandomDrawingPattern] START"
+	$arr_mode = @("c", "a", "w", "f", "r", "o", "l", "j")
+	$arr_ret = @()
+
+	for ($i = 0; $i -lt $loopcount; $i++) {
+		$select = Get-Random -Maximum ($arr_mode.Count - 1) -Minimum 0
+		$ret = $arr_mode[$select]
+#		Write-Host $i : $ret
+		$arr_ret += $ret
+	}
+#	Write-Host "[Get-RandomDrawingPattern] END"
+	return $arr_ret
+}
+
 # Create a graphic main routine
 function Get-Graphics{
 	Write-Host "[Get-Graphics] START"
@@ -152,8 +167,17 @@ function Get-Graphics{
 	# 描画先とするImageオブジェクトを作成する
 	$canvas = New-Object System.Drawing.Bitmap(500, 500)
 
-	$loopcount = Get-Random -Maximum 30 -Minimum 1
+	$count = Read-Host "please enter drawing process level 5 to 100"
+	$loopcount = Get-Random -Maximum $count -Minimum 1
 	Write-Host "loopcount : $loopcount"
+
+	$mode_pattern = Read-Host "please enter random: r or select: s"
+	if (($mode_pattern -eq 'r') -or ($mode_pattern -eq 'R')) {
+		$arr_random = @()
+		# Get drawing pattern array
+		$arr_random = Get-RandomDrawingPattern($loopcount)
+	}
+
 	for($l_count = 0; $l_count -lt $loopcount; $l_count++){
 
 		# ImageオブジェクトのGraphicsオブジェクトを作成する
@@ -168,8 +192,15 @@ function Get-Graphics{
 		# Image object's width
 		$img_height = $canvas.Height
 
-		Write-Host "[filling]circle mode: p, arc mode: o, pie: l, polygon: k, rectangle: j."
-		$mode = Read-Host "[drawing]circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."
+		if (($mode_pattern -eq 'r') -or ($mode_pattern -eq 'R')) {
+			# setting mode to variable
+			$mode = $arr_random[$l_count]
+		}else{
+			# select mode(s/S) is default
+			Write-Host "[filling]circle mode: p, arc mode: o, pie: l, polygon: k, rectangle: j."
+			$mode = Read-Host "[drawing]circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."	
+		}
+
 		if(($mode -eq 'c') -or ($mode -eq 'C')){
 			Write-Host "Circle mode"
 			$x_position = Get-RandomPoint($img_width)

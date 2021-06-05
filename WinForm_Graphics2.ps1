@@ -131,6 +131,20 @@ function Get-RandomAngle{
 	return $select
 }
 
+function Get-RandomBrushes{
+	Write-Host "[Get-RandomBrushes] START"
+	$arr_brush = [System.Drawing.Brushes]|get-member -static -MemberType Property | Select-Object Name
+	$count = $arr_brush.Count
+	$num_select = Get-Random -Maximum ($count - 1)
+
+	$ret_brush = $arr_brush[$num_select]
+	$ret_str = $ret_brush.Name
+	Write-Host "brush_color: $ret_str"
+
+	Write-Host "[Get-RandomBrushes] END"
+	return [System.Drawing.Brushes]::$ret_str
+}
+
 # Create a graphic main routine
 function Get-Graphics{
 	Write-Host "[Get-Graphics] START"
@@ -154,7 +168,8 @@ function Get-Graphics{
 		# Image object's width
 		$img_height = $canvas.Height
 
-		$mode = Read-Host "circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."
+		Write-Host "[filling]circle mode: p, arc mode: o, pie: l, polygon: k, rectangle: j."
+		$mode = Read-Host "[drawing]circle mode: c, arc mode: a, pie: w, polygon: f, rectangle: r."
 		if(($mode -eq 'c') -or ($mode -eq 'C')){
 			Write-Host "Circle mode"
 			$x_position = Get-RandomPoint($img_width)
@@ -253,6 +268,61 @@ function Get-Graphics{
 			$rect_height = Get-RandomPoint($available_height)
 
 			$graphic.DrawRectangle($pen, $x_position, $y_position, $rect_width, $rect_height);
+
+		}elseif(($mode -eq 'o') -or ($mode -eq 'O')) {
+			Write-Host "filling Arc mode"
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+
+			$available_width = $img_width - $x_position
+			$arc_width = Get-RandomPoint($available_width)
+
+			$available_height = $img_height - $y_position
+			$arc_height = Get-RandomPoint($available_height)
+
+			$start_angle = Get-RandomAngle
+			$sweep_angle = Get-RandomAngle
+
+			# à íu(10, 20)Ç…100x80ÇÃéläpÇê‘êFÇ≈ï`Ç≠
+			$graphic.DrawRectangle($pen, $x_position, $y_position, $arc_width, $arc_height)
+			#êÊÇ…ï`Ç¢ÇΩéläpÇ…ì‡ê⁄Ç∑ÇÈë»â~ÇÃàÍïî
+			# (äJénäpìx 0ìxÅAÉXÉCÅ[Éväpìx 90ìx)ÇçïÇ≈ï`Ç≠
+			$graphic.DrawArc($pen, $x_position, $y_position, $arc_width, $arc_height, $start_angle, $sweep_angle)
+
+		}elseif(($mode -eq 'l') -or ($mode -eq 'L')) {
+			Write-Host "filling Pie mode"
+
+			$brush = Get-RandomBrushes
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+
+			$available_width = $img_width - $x_position
+			$pie_width = Get-RandomPoint($available_width)
+
+			$available_height = $img_height - $y_position
+			$pie_height = Get-RandomPoint($available_height)
+
+			$start_angle = Get-RandomAngle
+			$sweep_angle = Get-RandomAngle
+
+			$graphic.FillEllipse($brush, $x_position, $y_position, $pie_width, $pie_height)
+
+		}elseif(($mode -eq 'j') -or ($mode -eq 'J')) {
+			Write-Host "filling rectangle mode"
+
+			$brush = Get-RandomBrushes
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+
+			$available_width = $img_width - $x_position
+			$rect_width = Get-RandomPoint($available_width)
+
+			$available_height = $img_height - $y_position
+			$rect_height = Get-RandomPoint($available_height)
+
+			$graphic.FillRectangle($brush, $x_position, $y_position, $rect_width, $rect_height)
 
 		}else {
 			Write-Host "None"

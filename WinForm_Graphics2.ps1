@@ -92,10 +92,10 @@ function Get-RandomFont{
 }
 
 function Get-RandomPoint($maxvalue){
-	Write-Host "[Get-RandomPoint] START"
+#	Write-Host "[Get-RandomPoint] START"
 	$ret = Get-Random -Maximum $maxvalue -Minimum 0
 	Write-Host "ret: $ret"
-	Write-Host "[Get-RandomPoint] END"
+#	Write-Host "[Get-RandomPoint] END"
 	return $ret
 }
 
@@ -124,30 +124,30 @@ function Get-RandomColor{
 }
 
 function Get-RandomAngle{
-	Write-Host "[Get-RandomAngle] START"
+#	Write-Host "[Get-RandomAngle] START"
 	$select = Get-Random -Maximum 359 -Minimum 0
 	Write-Host "select: $select"
-	Write-Host "[Get-RandomAngle] END"
+#	Write-Host "[Get-RandomAngle] END"
 	return $select
 }
 
 function Get-RandomBrushes{
-	Write-Host "[Get-RandomBrushes] START"
+#	Write-Host "[Get-RandomBrushes] START"
 	$arr_brush = [System.Drawing.Brushes]|get-member -static -MemberType Property | Select-Object Name
 	$count = $arr_brush.Count
 	$num_select = Get-Random -Maximum ($count - 1)
 
 	$ret_brush = $arr_brush[$num_select]
 	$ret_str = $ret_brush.Name
-	Write-Host "brush_color: $ret_str"
+#	Write-Host "brush_color: $ret_str"
 
-	Write-Host "[Get-RandomBrushes] END"
+#	Write-Host "[Get-RandomBrushes] END"
 	return [System.Drawing.Brushes]::$ret_str
 }
 
 function Get-RandomDrawingPattern($loopcount){
 #	Write-Host "[Get-RandomDrawingPattern] START"
-	$arr_mode = @("c", "a", "w", "f", "r", "o", "l", "j")
+	$arr_mode = @("c", "a", "w", "f", "r", "o", "l", "k", "j")
 	$arr_ret = @()
 
 	for ($i = 0; $i -lt $loopcount; $i++) {
@@ -167,11 +167,9 @@ function Get-Graphics{
 	# 描画先とするImageオブジェクトを作成する
 	$canvas = New-Object System.Drawing.Bitmap(500, 500)
 
-	$count = Read-Host "please enter drawing process level 5 to 100"
-	$loopcount = Get-Random -Maximum $count -Minimum 1
-	Write-Host "loopcount : $loopcount"
-
 	$mode_pattern = Read-Host "please enter random: r or select: s"
+	$loopcount = Read-Host "please enter drawing process level 5 to 100"
+
 	if (($mode_pattern -eq 'r') -or ($mode_pattern -eq 'R')) {
 		$arr_random = @()
 		# Get drawing pattern array
@@ -338,6 +336,45 @@ function Get-Graphics{
 			$sweep_angle = Get-RandomAngle
 
 			$graphic.FillEllipse($brush, $x_position, $y_position, $pie_width, $pie_height)
+
+		}elseif(($mode -eq 'k') -or ($mode -eq 'K')) {
+			Write-Host "filling Polygon mode"
+			
+			$brush = Get-RandomBrushes
+			
+			# 直線で接続する点の配列を作成
+			$ps = @()
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+			$p1 = New-Object System.Drawing.Point($x_position, $y_position)
+			$ps += $p1
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+			$p2 = New-Object System.Drawing.Point($x_position, $y_position)
+			$ps += $p2
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+			$p3 = New-Object System.Drawing.Point($x_position, $y_position)
+			$ps += $p3
+
+			$x_position = Get-RandomPoint($img_width)
+			$y_position = Get-RandomPoint($img_height)
+			$p4 = New-Object System.Drawing.Point($x_position, $y_position)
+			$ps += $p4
+
+			# Fill Mode
+			$fillrandom = Get-Random -Maximum 10 -Minimum 1
+			if(($fillrandom % 2) -eq 0){
+				$fillmode = 0
+			}else {
+				$fillmode = 1
+			}
+
+			# 多角形を描画する
+			$graphic.FillPolygon($brush, $ps, $fillmode);
 
 		}elseif(($mode -eq 'j') -or ($mode -eq 'J')) {
 			Write-Host "filling rectangle mode"
